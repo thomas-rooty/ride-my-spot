@@ -18,7 +18,7 @@ print('Waiting for response...')
 response = requests.post('http://localhost:5000/analyze', json=payload)
 
 # Extract JSON part using regular expressions
-json_match = re.search(r'\{[^}]+\}', response.text)
+json_match = re.search(r'\{[^}]+}', response.text)
 
 if json_match:
     json_string = json_match.group()
