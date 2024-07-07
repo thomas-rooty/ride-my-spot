@@ -43,7 +43,8 @@ def analyze_image():
         temperature=0.7,
     )
 
-    return jsonify(res)
+    json_res = jsonify(res)
+    return json_res
 
 
 if __name__ == '__main__':
