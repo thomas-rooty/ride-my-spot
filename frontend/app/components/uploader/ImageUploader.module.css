@@ -3,6 +3,10 @@
     flex-direction: column;
 }
 
+.guesser {
+    max-width: 90vw;
+}
+
 .inputContainer {
     display: flex;
     flex-direction: column;

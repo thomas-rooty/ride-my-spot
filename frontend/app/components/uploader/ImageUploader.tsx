@@ -4,14 +4,19 @@ import { ChangeEvent, useState } from 'react'
 import { useUploaderStore } from '@/stores/uploader.store'
 import { PrimaryButton } from '@/app/components/buttons/Buttons'
 import { isThisAGoodSpot } from '@/app/services/commons'
+import { extractJsonFromString } from '@/app/utils/functions'
 
 const ImageUploader = () => {
   const { setImagePreview, setImageFile } = useUploaderStore()
   const { imagePreview, imageFile } = useUploaderStore()
-  const [analysis, setAnalysis] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [analysis, setAnalysis] = useState<string>('')
+  const [jsonString, setJsonString] = useState<string>('')
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    // Reset analysis
+    setAnalysis('')
+    setJsonString('')
     const file = e.target.files?.[0]
     if (file) {
       const reader = new FileReader()
@@ -30,10 +35,15 @@ const ImageUploader = () => {
 
       setLoading(true)
       setAnalysis('')
+      setJsonString('')
 
       try {
         const res = await isThisAGoodSpot(formData)
         setAnalysis(res)
+        const json = extractJsonFromString(res)
+        if (json) {
+          setJsonString(JSON.stringify(json, null, 2))
+        }
       } catch (error) {
         console.error('Error during analysis:', error)
         setAnalysis('Analysis failed. Please try again.')
@@ -49,6 +59,7 @@ const ImageUploader = () => {
         <PrimaryButton onClick={handleAnalysis}>Analyze</PrimaryButton>
         {loading && <p className={styles.loading}>Riding the spot for you...</p>}
         {analysis && <p className={styles.analysis}>{analysis}</p>}
+        {jsonString && <pre className={styles.json}>{jsonString}</pre>}
       </div>
       <div className={styles.inputContainer}>
         <input type="file" accept="image/*" onChange={handleImageChange} className={styles.inputFile} />
