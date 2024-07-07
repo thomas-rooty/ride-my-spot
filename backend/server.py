@@ -3,14 +3,24 @@ from PIL import Image
 import base64
 from io import BytesIO
 from transformers import AutoModel, AutoTokenizer
+import torch
 
 app = Flask(__name__)
+
+# Check if CUDA is available
+if torch.cuda.is_available():
+    print('CUDA is available.')
+    # Print CUDA version
+    print(torch.version.cuda)
+    # Print devices
+    print(torch.cuda.get_device_name(0))
+else:
+    print('CUDA is not available.')
 
 # Load model and tokenizer
 model = AutoModel.from_pretrained('openbmb/MiniCPM-Llama3-V-2_5-int4', trust_remote_code=True)
 tokenizer = AutoTokenizer.from_pretrained('openbmb/MiniCPM-Llama3-V-2_5-int4', trust_remote_code=True)
 model.eval()
-
 
 @app.route('/analyze', methods=['POST'])
 def analyze_image():
@@ -34,7 +44,6 @@ def analyze_image():
 
     msgs = [{'role': 'user', 'content': question}]
 
-    # Use synchronous method for chat
     res = model.chat(
         image=image,
         msgs=msgs,
